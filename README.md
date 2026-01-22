@@ -10,7 +10,7 @@
 
 **本项目所用到学术支撑与链接**
 
-> 1. 系统网络链接: http://ecosystem-rbpi.cpolar.cn/
+> 1. 系统网络链接: http://ecosystem-rbpi.cpolar.cn/ **(本链接仅次于树莓派接上电时候才可进入否则为404报错号码)**
 > 2. 本项目基于的学术基础: https://doi.org/10.1007/s10668-025-07035-0
 > 3. 本项目基于的项目基础: https://github.com/zhiwenC125/ML_Assisted_Students_Carbon_Emission
 
