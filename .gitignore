@@ -1,0 +1,60 @@
+# --- Python 相关 ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# --- Conda 环境 (如果你把环境装在项目文件夹内了) ---
+.conda/
+venv/
+.venv/
+
+# --- 机器学习相关 ---
+# 如果你的模型文件很大，或者包含敏感数据，可以忽略
+# .pkl
+# .pth
+# .h5
+
+# --- 运行日志与临时数据 ---
+*.log
+stability_log.txt
+flask.log
+
+# --- 动态生成的图片 (SHAP 分析图) ---
+# 建议忽略自动生成的图，让用户运行代码时自行生成
+static/shap_summary.png
+static/plots/
+
+# --- 操作系统相关 ---
+.DS_Store
+Thumbs.db
+
+# --- 编辑器相关 ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- 内网穿透与敏感信息 ---
+# 严禁上传包含 authtoken 的配置文件
+cpolar.yml
+*.key
+*.pem
+Miniconda3-latest-Linux-aarch64.sh

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生碳排放实时监测系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --main-green: #198754; --bg-light: #f8f9fa; }
+        body { background-color: var(--bg-light); font-family: 'Segoe UI', system-ui, sans-serif; overflow-x: hidden; }
+        
+        /* 响应式标题：手机上调小字号 */
+        h1 { font-size: calc(1.375rem + 1.5vw); }
+        @media (max-width: 576px) {
+            h1 { font-size: 1.5rem; }
+            .container { padding-left: 10px; padding-right: 10px; }
+        }
+
+        /* 页面主要卡片样式 */
+        .data-card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; }
+        .data-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        
+        /* 状态呼吸灯 */
+        .status-dot {
+            height: 9px; width: 9px; background-color: #28a745; border-radius: 50%;
+            display: inline-block; margin-left: 6px; animation: blink 1.2s infinite;
+        }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        /* --- 底部双校徽响应式布局 --- */
+        .footer-logo-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* 缩小间距适配小屏 */
+            margin-bottom: 20px;
+            flex-wrap: wrap; /* 极小屏幕下允许换行 */
+        }
+        .school-logo-bottom {
+            height: 60px; /* 手机端稍微减小高度，保持精致 */
+            width: auto;
+            max-width: 40%; /* 防止图片撑破容器 */
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+        @media (min-width: 768px) {
+            .school-logo-bottom { height: 85px; } /* 电脑端保持大气 */
+            .footer-logo-box { gap: 50px; }
+        }
+        .footer-divider {
+            width: 1px;
+            height: 30px;
+            background-color: #dee2e6;
+        }
+
+        /* 确保图片不会超出容器 */
+        #shap-img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container py-4 py-md-5">
+        <header class="text-center mb-4 mb-md-5">
+            <h1 class="fw-bold text-success">🌱 学生碳排放监测与解释系统</h1>
+            <p class="text-secondary lead small-mobile-text">基于 STM32 与 AI 的实时分析系统</p>
+        </header>
+
+        <div class="row g-3 g-md-4">
+            <div class="col-lg-5 col-12">
+                <div class="card data-card mb-3 mb-md-4 border-top border-primary border-4">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-3 fw-bold small">📡 硬件实时感知 (STM32)</h6>
+                        <div class="row text-center">
+                            <div class="col-6 border-end">
+                                <div class="small text-muted" style="font-size: 0.75rem;">用电量 (kWh)</div>
+                                <div id="live-elec" class="h4 fw-bold text-primary">--</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="small text-muted" style="font-size: 0.75rem;">用水量 (L)</div>
+                                <div id="live-water" class="h4 fw-bold text-info">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card data-card border-top border-success border-4">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-3 fw-bold small">📝 行为数据录入</h6>
+                        <form id="predict-form">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">学号验证:</label>
+                                <input type="text" id="student_id" class="form-control form-control-sm" placeholder="输入学号" required>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-6"><label class="small" style="font-size: 0.7rem;">饮食:</label><input type="number" id="food" class="form-control form-control-sm" value="500"></div>
+                                <div class="col-6"><label class="small" style="font-size: 0.7rem;">包装:</label><input type="number" id="packaging" class="form-control form-control-sm" value="50"></div>
+                                <div class="col-6"><label class="small" style="font-size: 0.7rem;">衣物:</label><input type="number" id="clothing" class="form-control form-control-sm" value="100"></div>
+                                <div class="col-6"><label class="small" style="font-size: 0.7rem;">纸张:</label><input type="number" id="paper" class="form-control form-control-sm" value="20"></div>
+                                <div class="col-6"><label class="small" style="font-size: 0.7rem;">垃圾:</label><input type="number" id="litter" class="form-control form-control-sm" value="30"></div>
+                                <div class="col-6"><label class="small" style="font-size: 0.7rem;">通勤:</label><input type="number" id="commuting" class="form-control form-control-sm" value="5"></div>
+                            </div>
+                            <button type="button" onclick="runPrediction()" class="btn btn-success w-100 mt-3 fw-bold shadow-sm py-2">启动 AI 诊断</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7 col-12">
+                <div class="card data-card h-100 border-top border-dark border-4">
+                    <div class="card-body text-center d-flex flex-column justify-content-center py-4">
+                        <div id="res-init" class="text-muted small">等待数据录入分析...</div>
+                        <div id="res-show" class="d-none">
+                            <h6 class="text-muted mb-1 small">预测等级</h6>
+                            <div id="res-category" class="h2 fw-bold text-success mb-3">--</div>
+                            <hr class="my-3">
+                            <div class="text-start">
+                                <h6 class="fw-bold small mb-2">归因分析 (SHAP Explanation):</h6>
+                                <div class="bg-white p-1 rounded border">
+                                    <img id="shap-img" src="" alt="SHAP Plot">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-5 pt-4 pb-3 border-top">
+            <div class="container text-center">
+                <div class="footer-logo-box">
+                    <img src="{{ url_for('static', filename='school_logo1.png') }}" alt="School A" class="school-logo-bottom">
+                    <div class="footer-divider d-none d-sm-block"></div>
+                    <img src="{{ url_for('static', filename='school_logo2.jpg') }}" alt="School B" class="school-logo-bottom">
+                </div>
+
+                <p class="mb-1 fw-bold text-dark small" style="font-size: 0.85rem;">联合研发：NTU & GDUT智慧能源中心</p>
+                <p class="text-muted mb-0" style="font-size: 0.7rem;">
+                    状态：在线 <span class="status-dot"></span> | © 2026 研究项目
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        async function runPrediction() {
+            const sid = document.getElementById('student_id').value.trim();
+            if(!sid) { alert("请输入学号"); return; }
+            
+            document.getElementById('res-init').classList.add('d-none');
+            document.getElementById('res-show').classList.remove('d-none');
+            document.getElementById('res-category').innerText = "分析中...";
+
+            const data = {
+                student_id: sid,
+                food: parseFloat(document.getElementById('food').value),
+                packaging: parseFloat(document.getElementById('packaging').value),
+                clothing: parseFloat(document.getElementById('clothing').value),
+                paper: parseFloat(document.getElementById('paper').value),
+                litter: parseFloat(document.getElementById('litter').value),
+                commuting: parseFloat(document.getElementById('commuting').value)
+            };
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const res = await response.json();
+                if(res.status === 'success') {
+                    document.getElementById('res-category').innerText = res.prediction;
+                    document.getElementById('live-elec').innerText = res.live_hw.electricity.toFixed(2);
+                    document.getElementById('live-water').innerText = res.live_hw.hot_water.toFixed(3);
+                    document.getElementById('shap-img').src = res.shap_img + '?t=' + new Date().getTime();
+                }
+            } catch (e) { alert("网络异常"); }
+        }
+    </script>
+</body>
+</html>
