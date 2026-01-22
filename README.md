@@ -111,6 +111,8 @@ sudo systemctl start eco_web.service
 ```Plaintext
 ├── data
 ├── hardware/              # STM32 采集端代码 (C/C++)
+│   ├──Inc                 # STM运行文件
+│   └──Src                 # STM运行头文件
 ├── models                 # 模型pkl文件存储
 │   └── models.pkl         # 模型训练文件
 ├── web_app/               # Flask Web 端
