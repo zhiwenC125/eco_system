@@ -138,6 +138,6 @@ sudo systemctl start eco_web.service
 * 背景: 机械工程研究生
 * 联系方式: Zhiwc125@gmail.com
 
-* 开发人员：Yumo Lin
-* 背景：故障诊断研究生
-* 联系方式：lch58957@gmail.com
+* 开发人员: Yumo Lin
+* 背景: 故障诊断研究生
+* 联系方式: lch58957@gmail.com
